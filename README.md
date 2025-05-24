@@ -1,30 +1,52 @@
-# Arduino Temperature Alert System
+#include <LiquidCrystal_I2C.h>
+//المكتبه دي بتستدعي Wire.hاوتوماتيك مش بنحتاج نكتبها وبتستخدمها عشان تتواصل مع الشاشه عن طريق بروتوكول I2C
+// SDA,SCL دول بيتوصلو على بنات ثابته طالما بستخدم UNO (A4,A5) ال Wire.h بتعرفهم اوتوماتيك
+#define tmppin A1
+#define buzzerpin 13
+#define ledpin 12
+float threshold;
 
-This project is an embedded system using Arduino.  
-It reads the temperature from a sensor, and when the temperature exceeds a certain limit, an LED lights up and a buzzer sounds to alert the user.  
-The current temperature is displayed on a 16x2 LCD screen.
+LiquidCrystal_I2C lcd(32, 16, 2); //object بنعرف فيه الشاشه (type, columns,rows)
 
-## Components Used
+void setup() {
+  // بنجهز الشاشه 
+  lcd.begin(16,2); //بنقول ان الشاشه فيها كام خانه وكام سطر
+  lcd.init();   //بنجهز الشاشه عشان تشتغل وتفهم الاوامر اللي هنديهالها
+  lcd.backlight();
+  lcd.clear();
+  
+  pinMode(buzzerpin, OUTPUT);
+  pinMode(ledpin, OUTPUT);
+}
 
-- Arduino Uno  
-- Temperature sensor (TMP36)  
-- 16x2 LCD display  
-- LED  
-- Buzzer  
-- Connecting wires
-- BreadBoard 
+void loop() {
+  threshold = analogRead(tmppin); //  الرقم بيكون قيمته 0 : 1023 
+  float voltage =   threshold * (5.0 / 1024.0); 
+  float temperatureC = (voltage -0.5) * 100; // 1V = 100درجه 
+  
+ // lcd.clear();
+  lcd.setCursor(2, 0);
+  lcd.print("Temperature: ");
+  lcd.setCursor(4, 1);
+  lcd.print(temperatureC);
+  lcd.print(" C");
+  
+  if(temperatureC >=35)
+  {
+	digitalWrite(ledpin, HIGH);
+  }  else {
+    digitalWrite(ledpin, LOW);
+       }
+  if (temperatureC >=40)
+  {
+    digitalWrite(buzzerpin, HIGH);
+  }else {
+    digitalWrite(buzzerpin, LOW);
+  }
+    
+          delay(1000);
+   
 
-## How It Works
-
-1. The temperature sensor continuously measures the surrounding temperature.  
-2. The Arduino reads the sensor data and displays the temperature on the LCD screen.  
-3. If the temperature goes above the set threshold, the LED turns on and the buzzer sounds as an alert.
-
-## How to Use
-
-- Connect all components as shown in the project.  
-- Upload the provided Arduino code (`temperature_alert.ino`) to your Arduino board.  
-- Power on the system and monitor the temperature on the LCD.  
-- When the temperature exceeds the limit, observe the LED and buzzer alerts.
+                 }
 
 
